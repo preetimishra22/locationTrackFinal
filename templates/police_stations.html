@@ -38,11 +38,38 @@
   * Author: BootstrapMade.com
   * License: https://bootstrapmade.com/license/
   ======================================================== -->
+
+  <script>
+    function initMap() {
+      var latitude = parseFloat('{{ latitude }}');
+      var longitude = parseFloat('{{ longitude }}');
+      var mapOptions = {
+        center: { lat: latitude, lng: longitude },
+        zoom: 15
+      };
+      var map = new google.maps.Map(document.getElementById('map'), mapOptions);
+      var police_stations = {{ police_stations|tojson }};
+      for (var i = 0; i < police_stations.length; i++) {
+        var station = police_stations[i];
+        var marker = new google.maps.Marker({
+          position: { lat: station.geometry.location.lat, lng: station.geometry.location.lng },
+          map: map,
+          title: station.name
+        });
+        (function(station) {
+          google.maps.event.addListener(marker, 'click', function() {
+            var googleMapsUrl = `https://www.google.com/maps/place/?q=place_id:${station.place_id}`;
+            window.open(googleMapsUrl, '_blank');
+          });
+        })(station);
+      }
+    }
+  </script>
+  <script src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}&callback=initMap" async defer></script>
 </head>
 
 <body>
 
-  <!-- ======= Header ======= -->
   <header id="header" class="header d-flex align-items-center fixed-top">
     <div class="container-fluid container-xl d-flex align-items-center justify-content-between">
 
@@ -67,14 +94,13 @@
               <li><a href="/pricing">Bad Wap</a></li>
             </ul>
           </li>
-
+         
           <li><a class="get-a-quote" href="/logout">LOGOUT</a></li>
         </ul>
       </nav><!-- .navbar -->
 
     </div>
   </header><!-- End Header -->
-  <!-- End Header -->
 
   <main id="main">
 
@@ -85,8 +111,7 @@
         <div class="container position-relative">
           <div class="row d-flex justify-content-center">
             <div class="col-lg-6 text-center">
-              <h2>Contact</h2>
-
+              <h2>NEAR BY POLICE STATIONS</h2>
             </div>
           </div>
         </div>
@@ -94,8 +119,8 @@
       <nav>
         <div class="container">
           <ol>
-            <li><a href="index.html">Home</a></li>
-            <li>Contact</li>
+            <li><a href="index">Home</a></li>
+            <li>POLICE STATIONS</li>
           </ol>
         </div>
       </nav>
@@ -105,37 +130,10 @@
     <section id="contact" class="contact">
       <div class="container" data-aos="fade-up">
 
-        <div class="row gy-4 mt-4">
-
-          <div class="col-lg-4">
-
-            <div class="info-item d-flex">
-              <i class="bi bi-geo-alt flex-shrink-0"></i>
-              <div>
-                <h4>Location:</h4>
-                <p>Sion, Mumbai,400022</p>
-              </div>
-            </div><!-- End Info Item -->
-
-            <div class="info-item d-flex">
-              <i class="bi bi-envelope flex-shrink-0"></i>
-              <div>
-                <h4>Email:</h4>
-                <p>mishra.ps@somaiya.edu</p>
-              </div>
-            </div><!-- End Info Item -->
-
-            <div class="info-item d-flex">
-              <i class="bi bi-phone flex-shrink-0"></i>
-              <div>
-                <h4>Call:</h4>
-                <p>7208576785</p>
-              </div>
-            </div><!-- End Info Item -->
-
-          </div>
-
-        </div>
+        <!-- <div>
+          <iframe style="border:0; width: 100%; height: 740px;" src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d12097.433213460943!2d-74.0062269!3d40.7101282!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0xb89d1fe6bc499443!2sDowntown+Conference+Center!5e0!3m2!1smk!2sbg!4v1539943755621" frameborder="0" allowfullscreen></iframe>
+        </div> -->
+        <div id="map" style="width: 100%; height: 700px;"></div>
 
       </div>
     </section><!-- End Contact Section -->
@@ -163,7 +161,7 @@
         <div class="col-lg-2 col-6 footer-links">
           <h4>Useful Links</h4>
           <ul>
-            <li><a href="#">Home</a></li>
+            <li><a href="/index">Home</a></li>
             <li><a href="#">About us</a></li>
             <li><a href="#">Services</a></li>
             <li><a href="#">Terms of service</a></li>

@@ -44,14 +44,14 @@
       var latitude = parseFloat('{{ latitude }}');
       var longitude = parseFloat('{{ longitude }}');
       var api_key = '{{ api_key }}';
-
+  
       var mapOptions = {
         center: { lat: latitude, lng: longitude },
         zoom: 15
       };
-
+  
       var map = new google.maps.Map(document.getElementById('map'), mapOptions);
-
+  
       var marker = new google.maps.Marker({
         position: { lat: latitude, lng: longitude },
         map: map,
@@ -61,17 +61,24 @@
           scaledSize: new google.maps.Size(30, 47)  // Adjust the size as needed
         }
       });
-
-      var hospitals = {{ hospitals| tojson
-    }};
-    for (var i = 0; i < hospitals.length; i++) {
-      var hospital = hospitals[i];
-      var hospitalMarker = new google.maps.Marker({
-        position: { lat: hospital.geometry.location.lat, lng: hospital.geometry.location.lng },
-        map: map,
-        title: hospital.name
-      });
-    }
+  
+      var hospitals = {{ hospitals|tojson }};
+      for (var i = 0; i < hospitals.length; i++) {
+        var hospital = hospitals[i];
+        var hospitalMarker = new google.maps.Marker({
+          position: { lat: hospital.geometry.location.lat, lng: hospital.geometry.location.lng },
+          map: map,
+          title: hospital.name
+        });
+  
+        // Add click event listener to open the hospital location in Google Maps
+        (function(hospital) {
+          google.maps.event.addListener(hospitalMarker, 'click', function() {
+            var googleMapsUrl = `https://www.google.com/maps/place/?q=place_id:${hospital.place_id}`;
+            window.open(googleMapsUrl, '_blank'); // Open in a new tab
+          });
+        })(hospital);
+      }
     }
   </script>
   <script src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}&callback=initMap" async defer></script>
@@ -128,7 +135,7 @@
       <nav>
         <div class="container">
           <ol>
-            <li><a href="index.html">Home</a></li>
+            <li><a href="index">Home</a></li>
             <li>HOSPITALS</li>
           </ol>
         </div>
@@ -170,7 +177,7 @@
         <div class="col-lg-2 col-6 footer-links">
           <h4>Useful Links</h4>
           <ul>
-            <li><a href="#">Home</a></li>
+            <li><a href="/index">Home</a></li>
             <li><a href="#">About us</a></li>
             <li><a href="#">Services</a></li>
             <li><a href="#">Terms of service</a></li>

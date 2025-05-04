@@ -1,7 +1,10 @@
-from flask import Flask, render_template, request, session, url_for, redirect
+from flask import Flask,flash, render_template, request, session, url_for, redirect
 import pymysql
 from werkzeug.utils import secure_filename
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 import pathlib
+import smtplib
 import os
 import geocoder
 import requests
@@ -124,6 +127,7 @@ def login():
            print("result", result)
            if result:
                session['user'] = result[0]
+               session['user_email'] = result[1]  # Store email in session
                return redirect(url_for('index'))
 
            else:
@@ -232,7 +236,7 @@ def get_nearby_hospitals(latitude, longitude):
     return data.get("results", [])
 
 def get_nearby_hostel(latitude, longitude):
-    url = f"https://maps.googleapis.com/maps/api/place/nearbysearch/json?location={latitude},{longitude}&radius=1500&type=hotels&key={GOOGLE_MAPS_API_KEY}"
+    url = f"https://maps.googleapis.com/maps/api/place/nearbysearch/json?location={latitude},{longitude}&radius=1500&type=lodging&key={GOOGLE_MAPS_API_KEY}"
     response = requests.get(url)
     data = response.json()
     print(data)
@@ -274,7 +278,114 @@ def hostel():
         return redirect(url_for('login'))
 
 
+@app.route('/restaurants')
+def restaurants():
+    try:
+        if(session['user'] is not None):
+            current_location = get_current_location()
+            if current_location:
+                latitude, longitude = current_location
+                restaurants = get_nearby_places(latitude, longitude, 'restaurant')
+                return render_template('restaurants.html', latitude=latitude, longitude=longitude, api_key=GOOGLE_MAPS_API_KEY, restaurants=restaurants)
+            else:
+                return "Could not determine current location."
+    except:
+        return redirect(url_for('login'))
 
+
+@app.route('/malls')
+def malls():
+    try:
+        if(session['user'] is not None):
+            current_location = get_current_location()
+            if current_location:
+                latitude, longitude = current_location
+                malls = get_nearby_places(latitude, longitude, 'mall')
+                return render_template('malls.html', latitude=latitude, longitude=longitude, api_key=GOOGLE_MAPS_API_KEY, malls=malls)
+            else:
+                return "Could not determine current location."
+    except:
+        return redirect(url_for('login'))
+
+
+@app.route('/parks')
+def parks():
+    try:
+        if(session['user'] is not None):
+            current_location = get_current_location()
+            if current_location:
+                latitude, longitude = current_location
+                parks = get_nearby_places(latitude, longitude, 'park')
+                return render_template('parks.html', latitude=latitude, longitude=longitude, api_key=GOOGLE_MAPS_API_KEY, parks=parks)
+            else:
+                return "Could not determine current location."
+    except:
+        return redirect(url_for('login'))
+
+
+@app.route('/departmental_stores')
+def departmental_stores():
+    try:
+        if(session['user'] is not None):
+            current_location = get_current_location()
+            if current_location:
+                latitude, longitude = current_location
+                stores = get_nearby_places(latitude, longitude, 'departmental store')
+                return render_template('departmental_stores.html', latitude=latitude, longitude=longitude, api_key=GOOGLE_MAPS_API_KEY, stores=stores)
+            else:
+                return "Could not determine current location."
+    except:
+        return redirect(url_for('login'))
+
+
+@app.route('/police_stations')
+def police_stations():
+    try:
+        if(session['user'] is not None):
+            current_location = get_current_location()
+            if current_location:
+                latitude, longitude = current_location
+                police_stations = get_nearby_places(latitude, longitude, 'police station')
+                return render_template('police_stations.html', latitude=latitude, longitude=longitude, api_key=GOOGLE_MAPS_API_KEY, police_stations=police_stations)
+            else:
+                return "Could not determine current location."
+    except:
+        return redirect(url_for('login'))
+
+
+@app.route('/send_email', methods = ['POST', 'GET'])
+def send_email_to_user():
+    user_email = session.get('user_email')
+
+    if not user_email:
+        flash("You must be logged in to receive an email.")
+        return redirect(url_for('login'))
+
+    try:
+        sender_email = "pm4592108@gmail.com"
+        sender_password = "E17qQ1EJ@m-_OFn"  # Use app password if 2FA is on
+
+        # Email content
+        message = MIMEMultipart()
+        message["From"] = sender_email
+        message["To"] = user_email
+        message["Subject"] = "Thank you for contacting TRACK&GO!"
+
+        body = "Hi there,\n\nThanks for reaching out to TRACK&GO. We have received your message and will get back to you shortly.\n\nBest regards,\nTRACK&GO Team"
+        message.attach(MIMEText(body, "plain"))
+
+        # Gmail SMTP
+        server = smtplib.SMTP("smtp.gmail.com", 587)
+        server.starttls()
+        server.login(sender_email, sender_password)
+        server.send_message(message)
+        server.quit()
+
+        return "Email sent successfully to {}".format(user_email)
+
+    except Exception as e:
+        print(sender_email, sender_password)
+        return f"Error sending email: {str(e)}"
 
 ################################################################################################################################
 if __name__ == '__main__':
