@@ -157,10 +157,11 @@
                 <div class="sent-message">Your message has been sent. Thank you!</div>
               </div>
               <div class="text-center"><button type="submit">Send Message</button></div>
-              <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+              <script type="text/javascript"
+                src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
               <script>
                 (function () {
-                  emailjs.init("mishra.ps@somaiya.edu"); // Replace with your EmailJS user ID
+                  emailjs.init("ynKm2OdnxDzEyH2ZH"); // Replace with your EmailJS user ID
                 })();
 
                 document.querySelector("form").addEventListener("submit", function (e) {
@@ -168,17 +169,24 @@
 
                   const formData = new FormData(this);
                   const messageData = {
-                    message: formData.get("message"),
+                    name: formData.get("name"),
+                    email: formData.get("email"),
+                    subject: formData.get("subject"),
+                    title: formData.get("message"),
                   };
 
                   emailjs
-                    .send("gmail", "This is a test email.", messageData)
+                    .send("service_h95cv6m", "template_ddfxp48", messageData)
                     .then(
                       function () {
+                        // Show success alert
+                        alert("Your message has been sent successfully!");
                         document.querySelector(".sent-message").style.display = "block";
                         document.querySelector(".error-message").style.display = "none";
                       },
                       function (error) {
+                        // Show error alert
+                        alert("Failed to send the message. Please try again.");
                         document.querySelector(".error-message").style.display = "block";
                         document.querySelector(".sent-message").style.display = "none";
                         console.error("Failed to send email:", error);
