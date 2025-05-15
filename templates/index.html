@@ -120,46 +120,12 @@
             the location and also routes to these locations with the help of
             Google Maps. </p>
 
-          <!-- <form action="#" class="form-search d-flex align-items-stretch mb-3" data-aos="fade-up" data-aos-delay="200">
-            <input type="text" class="form-control" id="searchInput"
-              placeholder="Hostel or Hospital near your location. Just Enter 'Hostel' or 'Hospital'">
-            <button type="submit" class="btn btn-primary" onclick="performSearch()">Search</button>
-            <script>
+          {% if predicted_city %}
+          <div style="padding: 10px; background-color: black; margin-bottom: 20px;">
+            <h4>🧠 Predicted Next City: <strong>{{ predicted_city }}</strong></h4>
+          </div>
+          {% endif %}
 
-              function performSearch() {
-                var searchInput = document.getElementById('searchInput');
-                var searchValue = searchInput.value.trim().toLowerCase();
-
-                if (searchValue === 'hostel' || searchValue === 'hospitals' || searchValue === 'hospital') {
-                  if (searchValue === 'hospital') { searchValue = 'hospitals'; }
-                  if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(function (position) {
-                      const latitude = position.coords.latitude;
-                      const longitude = position.coords.longitude;
-
-                      console.log('latitude',latitude);
-
-                      // Redirect to the appropriate route based on the search value
-                      window.location.href = `/${searchValue}?latitude=${latitude}&longitude=${longitude}`;
-                    }, function (error) {
-                      alert("Error getting location: " + error.message);
-                    }, {
-                      enableHighAccuracy: true, // Request high accuracy
-                      timeout: 10000, // Timeout after 10 seconds
-                      maximumAge: 0 // Do not use cached location
-                    }
-                    );
-                  } else {
-                    alert("Geolocation is not supported by this browser.");
-                  }
-                } else {
-                  alert("Please enter a valid search term (e.g., 'hostel' or 'hospitals').");
-                }
-              }
-            </script>
-
-            </script>
-          </form> -->
 
           <form class="form-search d-flex align-items-stretch mb-3" data-aos="fade-up" data-aos-delay="200">
             <select id="locationType" class="form-control">
@@ -172,16 +138,16 @@
             </select>
             <button type="button" class="btn btn-primary" onclick="navigateToLocation()">Go</button>
           </form>
-          
+
           <script>
             function navigateToLocation() {
               const locationType = document.getElementById('locationType').value;
-          
+
               if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(function (position) {
                   const latitude = position.coords.latitude;
                   const longitude = position.coords.longitude;
-          
+
                   // Redirect to the selected endpoint with latitude and longitude
                   window.location.href = `/${locationType}?latitude=${latitude}&longitude=${longitude}`;
                 }, function (error) {
